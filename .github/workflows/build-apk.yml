@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+  build-and-smoke:
+    runs-on: macos-14
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -18,12 +18,59 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
-      - name: Build clean release APK
-        run: gradle --no-daemon :app:assembleRelease
-      - name: Verify release output
+
+      - name: Build debug + release
+        run: gradle --no-daemon :app:assembleDebug :app:assembleRelease
+
+      - name: Static verify release output
         run: |
           test -f app/build/outputs/apk/release/app-release-unsigned.apk
+          test -f app/build/outputs/apk/debug/app-debug.apk
           unzip -l app/build/outputs/apk/release/app-release-unsigned.apk | head -80
+
+      - name: Android startup smoke test
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            set -euxo pipefail
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb shell am force-stop com.yogaflow.yogaapp
+            adb shell am start -W -n com.yogaflow.yogaapp/.MainActivity
+            sleep 3
+            PID="$(adb shell pidof com.yogaflow.yogaapp | tr -d '\r')"
+            test -n "$PID"
+
+            adb shell uiautomator dump /sdcard/yogaflow.xml
+            adb pull /sdcard/yogaflow.xml /tmp/yogaflow.xml
+            grep -q "YogaFlow AI" /tmp/yogaflow.xml
+            grep -q "Открыть YogaFlow" /tmp/yogaflow.xml
+
+            python3 - <<'PY'
+            import re, subprocess
+            s=open('/tmp/yogaflow.xml',encoding='utf-8').read()
+            m=re.search(r'text="Открыть YogaFlow"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"',s)
+            if not m:
+                m=re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"[^>]*text="Открыть YogaFlow"',s)
+            if not m:
+                raise SystemExit("Open button bounds not found")
+            x1,y1,x2,y2=map(int,m.groups())
+            subprocess.check_call(['adb','shell','input','tap',str((x1+x2)//2),str((y1+y2)//2)])
+            PY
+
+            sleep 4
+            PID2="$(adb shell pidof com.yogaflow.yogaapp | tr -d '\r')"
+            test -n "$PID2"
+            adb shell uiautomator dump /sdcard/yogaflow-core.xml
+            adb pull /sdcard/yogaflow-core.xml /tmp/yogaflow-core.xml
+            grep -q "Персональная йога" /tmp/yogaflow-core.xml
+
+            adb logcat -d -t 300 | tee /tmp/logcat.txt
+            ! grep -q "FATAL EXCEPTION.*com.yogaflow.yogaapp" /tmp/logcat.txt
+
       - uses: actions/upload-artifact@v4
         with:
           name: YogaFlow-0.8-release-unsigned
