@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-diagnose:
+  build-and-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -28,7 +28,7 @@ jobs:
       - name: Build debug + release
         run: gradle --no-daemon :app:assembleDebug :app:assembleRelease
 
-      - name: Android startup diagnostics
+      - name: Android startup + WebView smoke test
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
@@ -38,32 +38,29 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: |
-            set -eu
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb logcat -c
             adb shell am force-stop com.yogaflow.yogaapp
-            adb shell am start -W -n com.yogaflow.yogaapp/.MainActivity || true
+            adb shell am start -W -n com.yogaflow.yogaapp/.MainActivity
+            sleep 3
+            adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
+            adb shell uiautomator dump /sdcard/yf-native.xml
+            adb pull /sdcard/yf-native.xml /tmp/yf-native.xml
+            grep -q "YogaFlow AI" /tmp/yf-native.xml
+            grep -q "Открыть YogaFlow" /tmp/yf-native.xml
+            adb shell input tap 540 1030
             sleep 4
+            adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
+            adb shell dumpsys activity activities | grep -q "com.yogaflow.yogaapp/.MainActivity"
+            adb logcat -d -t 400 > /tmp/yf-logcat.txt
+            ! grep -q "FATAL EXCEPTION.*com.yogaflow.yogaapp" /tmp/yf-logcat.txt
 
-            adb logcat -d > /tmp/yogaflow-logcat.txt
-            echo "===== PROCESS ====="
-            adb shell pidof com.yogaflow.yogaapp || true
-            echo "===== FATAL / ANDROID RUNTIME ====="
-            grep -n -A40 -B10 -E "FATAL EXCEPTION|AndroidRuntime|Process: com.yogaflow.yogaapp|YogaFlowBoot" /tmp/yogaflow-logcat.txt || true
-            echo "===== ACTIVITY ====="
-            adb shell dumpsys activity activities | grep -A10 -B4 "com.yogaflow.yogaapp" || true
-
-            PID="$(adb shell pidof com.yogaflow.yogaapp 2>/dev/null | tr -d '\r' || true)"
-            if [ -z "$PID" ]; then
-              exit 1
-            fi
-
-      - name: Upload logcat
+      - name: Upload smoke log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: YogaFlow-0.8-logcat
-          path: /tmp/yogaflow-logcat.txt
+          name: YogaFlow-0.8-smoke-log
+          path: /tmp/yf-logcat.txt
           if-no-files-found: warn
           retention-days: 7
 
