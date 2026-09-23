@@ -1,0 +1,43 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>YogaFlow 0.8</title><style>
+:root{--bg:#f4f1e9;--card:#fff;--ink:#18372f;--muted:#708078;--line:#dce4df;--accent:#235846;--soft:#eaf3ee}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}main{max-width:620px;margin:auto;padding:22px 16px 70px}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:14px}h1,h2,h3{margin:0 0 10px}.muted{color:var(--muted);line-height:1.45}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.choice,.pill,.btn{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff;color:var(--ink)}.choice.on,.pill.on{background:var(--soft);border-color:#9fbcae}.btn{width:100%;background:var(--accent);color:#fff;font-weight:750;font-size:16px}.row{display:flex;gap:8px;flex-wrap:wrap}.hidden{display:none}.pose{padding:11px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}.badge{display:inline-block;padding:6px 9px;border-radius:999px;background:var(--soft);font-size:12px}.check{display:block;padding:8px 0}.top{font-size:12px;color:var(--muted);margin-bottom:12px}
+</style></head><body><main>
+<div class="top">YogaFlow AI · Clean Core 0.8 · WebGL не участвует в запуске</div>
+<section id="setup">
+<div class="card"><h1>Персональная йога</h1><p class="muted">Эта версия проверяет чистый Android runtime. Генератор работает локально, а 3D остаётся изолированным модулем.</p></div>
+<div class="card"><h3>Ограничения</h3>
+<label class="check"><input type="checkbox" value="wrist"> Запястья</label>
+<label class="check"><input type="checkbox" value="knee"> Колени</label>
+<label class="check"><input type="checkbox" value="back"> Поясница</label>
+<label class="check"><input type="checkbox" value="neck"> Шея</label>
+<label class="check"><input type="checkbox" value="balance"> Баланс</label>
+</div>
+<div class="card"><h3>Стиль</h3><div class="grid" id="styles"></div></div>
+<div class="card"><h3>Длительность</h3><div class="row" id="dur"></div></div>
+<button class="btn" id="go">Создать тренировку</button>
+</section>
+<section id="result" class="hidden">
+<div class="card"><button class="pill" id="back">← Настройки</button><h2 id="title" style="margin-top:14px"></h2><div><span class="badge" id="meta"></span></div></div>
+<div class="card"><h3>Последовательность</h3><div id="list"></div></div>
+<div class="card"><h3>Аватар</h3><p class="muted">GPU-аватар временно отделён от clean-build проверки. Он продолжает разрабатываться отдельно и вернётся после подтверждения стабильного запуска Android shell.</p></div>
+</section>
+<script>
+const styles={hatha:'Hatha',vinyasa:'Vinyasa',yin:'Yin',restorative:'Restorative',mobility:'Mobility'};
+const poses=[
+['Гора','standing',[]],['Плечевые круги','standing',[]],['Кошка — корова','kneeling',['wrist','back','neck']],['Воин I','standing',['knee']],['Воин II','standing',['knee']],['Треугольник','standing',['back']],['Дерево','standing',['balance']],['Низкий выпад','kneeling',['knee']],['Собака мордой вниз','inverted',['wrist','back','neck']],['Сфинкс','prone',['back']],['Бабочка','seated',['knee']],['Посох','seated',[]],['Скрутка сидя','seated',['knee']],['Мост','supine',['back','neck']],['Колени к груди','supine',['knee']],['Скрутка лёжа','supine',[]],['Конструктивный отдых','supine',[]],['Шавасана','supine',[]]
+];
+let style='hatha',minutes=20;
+const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];
+$('#styles').innerHTML=Object.entries(styles).map(([k,v])=>'<button class="choice '+(k===style?'on':'')+'" data-s="'+k+'">'+v+'</button>').join('');
+$$('[data-s]').forEach(b=>b.onclick=()=>{style=b.dataset.s;$$('[data-s]').forEach(x=>x.classList.toggle('on',x===b))});
+$('#dur').innerHTML=[10,20,30,45].map(v=>'<button class="pill '+(v===minutes?'on':'')+'" data-d="'+v+'">'+v+' мин</button>').join('');
+$$('[data-d]').forEach(b=>b.onclick=()=>{minutes=+b.dataset.d;$$('[data-d]').forEach(x=>x.classList.toggle('on',x===b))});
+function generate(){
+ const blocked=new Set($$('input:checked').map(x=>x.value));
+ let p=poses.filter(x=>!x[2].some(r=>blocked.has(r)));
+ const count=Math.max(6,Math.min(p.length,Math.round(minutes/2)+3));
+ let out=[]; for(let i=0;i<count-1;i++) out.push(p[Math.floor(i*(p.length-1)/Math.max(1,count-2))]);
+ out.push(poses.at(-1)); return out;
+}
+$('#go').onclick=()=>{const s=generate();$('#title').textContent=styles[style];$('#meta').textContent=minutes+' минут · '+s.length+' асан';$('#list').innerHTML=s.map((p,i)=>'<div class="pose"><span>'+(i+1)+'. '+p[0]+'</span><small>'+p[1]+'</small></div>').join('');$('#setup').classList.add('hidden');$('#result').classList.remove('hidden')};
+$('#back').onclick=()=>{$('#result').classList.add('hidden');$('#setup').classList.remove('hidden')};
+</script></main></body></html>
