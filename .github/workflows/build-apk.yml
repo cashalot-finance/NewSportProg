@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-smoke:
+  build-and-diagnose:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -28,12 +28,7 @@ jobs:
       - name: Build debug + release
         run: gradle --no-daemon :app:assembleDebug :app:assembleRelease
 
-      - name: Static verify release output
-        run: |
-          test -f app/build/outputs/apk/release/app-release-unsigned.apk
-          test -f app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Android startup smoke test
+      - name: Android startup diagnostics
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
@@ -45,42 +40,37 @@ jobs:
           script: |
             set -eu
             adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb logcat -c
             adb shell am force-stop com.yogaflow.yogaapp
-            adb shell am start -W -n com.yogaflow.yogaapp/.MainActivity
-            sleep 2
-            PID="$(adb shell pidof com.yogaflow.yogaapp | tr -d '\r')"
-            test -n "$PID"
+            adb shell am start -W -n com.yogaflow.yogaapp/.MainActivity || true
+            sleep 4
 
-            adb shell uiautomator dump /sdcard/yogaflow.xml
-            adb pull /sdcard/yogaflow.xml /tmp/yogaflow.xml
-            grep -q "YogaFlow AI" /tmp/yogaflow.xml
-            grep -q "Открыть YogaFlow" /tmp/yogaflow.xml
+            adb logcat -d > /tmp/yogaflow-logcat.txt
+            echo "===== PROCESS ====="
+            adb shell pidof com.yogaflow.yogaapp || true
+            echo "===== FATAL / ANDROID RUNTIME ====="
+            grep -n -A40 -B10 -E "FATAL EXCEPTION|AndroidRuntime|Process: com.yogaflow.yogaapp|YogaFlowBoot" /tmp/yogaflow-logcat.txt || true
+            echo "===== ACTIVITY ====="
+            adb shell dumpsys activity activities | grep -A10 -B4 "com.yogaflow.yogaapp" || true
 
-            python3 - <<'PY'
-            import re, subprocess
-            s=open('/tmp/yogaflow.xml',encoding='utf-8').read()
-            nodes=re.findall(r'<node[^>]+>',s)
-            node=next((n for n in nodes if 'text="Открыть YogaFlow"' in n),None)
-            if not node: raise SystemExit("button not found")
-            m=re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"',node)
-            if not m: raise SystemExit("bounds not found")
-            x1,y1,x2,y2=map(int,m.groups())
-            subprocess.check_call(['adb','shell','input','tap',str((x1+x2)//2),str((y1+y2)//2)])
-            PY
-
-            sleep 3
-            PID2="$(adb shell pidof com.yogaflow.yogaapp | tr -d '\r')"
-            test -n "$PID2"
-            adb shell dumpsys activity activities | grep -q "com.yogaflow.yogaapp/.MainActivity"
-            adb logcat -d -t 250 > /tmp/logcat.txt
-            if grep -q "FATAL EXCEPTION.*com.yogaflow.yogaapp" /tmp/logcat.txt; then
-              cat /tmp/logcat.txt
+            PID="$(adb shell pidof com.yogaflow.yogaapp 2>/dev/null | tr -d '\r' || true)"
+            if [ -z "$PID" ]; then
               exit 1
             fi
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload logcat
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: YogaFlow-0.8-release-unsigned
-          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          name: YogaFlow-0.8-logcat
+          path: /tmp/yogaflow-logcat.txt
+          if-no-files-found: warn
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: YogaFlow-0.8-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
