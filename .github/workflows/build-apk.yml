@@ -43,7 +43,7 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: |
-            set -euxo pipefail
+            set -eu
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am force-stop com.yogaflow.yogaapp
             adb shell am start -W -n com.yogaflow.yogaapp/.MainActivity
@@ -73,7 +73,10 @@ jobs:
             test -n "$PID2"
             adb shell dumpsys activity activities | grep -q "com.yogaflow.yogaapp/.MainActivity"
             adb logcat -d -t 250 > /tmp/logcat.txt
-            ! grep -q "FATAL EXCEPTION.*com.yogaflow.yogaapp" /tmp/logcat.txt
+            if grep -q "FATAL EXCEPTION.*com.yogaflow.yogaapp" /tmp/logcat.txt; then
+              cat /tmp/logcat.txt
+              exit 1
+            fi
 
       - uses: actions/upload-artifact@v4
         with:
