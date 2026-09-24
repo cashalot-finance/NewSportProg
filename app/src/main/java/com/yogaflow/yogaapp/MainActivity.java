@@ -62,7 +62,7 @@ public final class MainActivity extends Activity {
                 StringWriter sw=new StringWriter();
                 error.printStackTrace(new PrintWriter(sw));
                 try(FileWriter out=new FileWriter(new File(getFilesDir(),"last-crash.txt"),false)){
-                    out.write("YogaFlow 0.9\n"); out.write(sw.toString());
+                    out.write("YogaFlow 1.0 RC1\n"); out.write(sw.toString());
                 }
             }catch(Throwable ignored){}
             if(previous!=null)previous.uncaughtException(thread,error);
@@ -81,7 +81,7 @@ public final class MainActivity extends Activity {
         root.setPadding(dp(28),dp(50),dp(28),dp(36));root.setBackgroundColor(Color.rgb(243,241,234));
         TextView title=label("YogaFlow AI",31,Color.rgb(23,54,45));
         root.addView(title,new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT));
-        TextView sub=label("Production beta 0.9",14,Color.rgb(96,113,105));
+        TextView sub=label("Production candidate 1.0 RC1",14,Color.rgb(96,113,105));
         sub.setPadding(0,dp(7),0,dp(12));root.addView(sub,new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT));
         TextView state=label(status,14,Color.rgb(72,92,83));state.setPadding(0,0,0,dp(24));
         root.addView(state,new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT));
