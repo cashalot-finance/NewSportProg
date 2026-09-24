@@ -71,10 +71,13 @@ jobs:
             sleep 3
             adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
             adb shell dumpsys activity activities | grep -q 'com.yogaflow.yogaapp/.MainActivity'
+            mkdir -p /tmp/yf-visual-qa
+            adb exec-out screencap -p > /tmp/yf-visual-qa/01-native-home.png
 
             adb shell input tap 540 1030
             sleep 4
             adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
+            adb exec-out screencap -p > /tmp/yf-visual-qa/02-core-setup.png
 
             adb shell am force-stop com.yogaflow.yogaapp
             adb shell am start -W -n com.yogaflow.yogaapp/.MainActivity --ez avatarSmoke true
@@ -82,12 +85,22 @@ jobs:
             adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
             adb shell pidof 'com.yogaflow.yogaapp:avatar' | grep -E '[0-9]'
             adb shell dumpsys activity activities | grep -q 'com.yogaflow.yogaapp/.AvatarActivity'
+            adb exec-out screencap -p > /tmp/yf-visual-qa/03-avatar.png
             adb logcat -d -t 1400 > /tmp/yf10-logcat.txt
             ! grep -q 'FATAL EXCEPTION.*com.yogaflow.yogaapp' /tmp/yf10-logcat.txt
 
       - name: Package source
         if: success()
         run: zip -qr YogaFlow-MVP-1.0.0-RC1-source.zip app build.gradle settings.gradle gradle.properties README.md PRODUCTION_PLAN.md .github
+
+      - name: Upload visual QA screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: YogaFlow-visual-QA
+          path: /tmp/yf-visual-qa/*.png
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Upload smoke log
         if: always()
