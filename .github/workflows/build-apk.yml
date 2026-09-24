@@ -1,4 +1,4 @@
-name: Build YogaFlow 0.9 APK
+name: Build YogaFlow 1.0 RC1 APK
 on:
   push:
     branches: [ yogaflow-prod ]
@@ -7,7 +7,7 @@ on:
 jobs:
   build-test-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 28
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -19,25 +19,30 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Sequence Engine matrix
+      - name: Sequence Engine production matrix
         run: |
           node - <<'NODE'
           const E=require('./app/src/main/assets/engine.js');
+          if(E.POSES.length!==100) throw new Error('catalog must contain exactly 100 asanas: '+E.POSES.length);
           const styles=Object.keys(E.STYLES), durations=[10,20,30,45,60];
-          const profiles=[[],['wrist'],['knee'],['back'],['neck'],['balance'],['wrist','knee']];
+          const profiles=[[],['wrist'],['knee'],['back'],['neck'],['balance'],['shoulder'],['wrist','knee']];
+          const goals=Object.keys(E.GOALS);
           let n=0;
-          for(const style of styles) for(const duration of durations) for(const health of profiles){
-            const s=E.generate({style,duration,health,intensity:2,goal:'mobility'});
+          for(const style of styles) for(const duration of durations) for(const health of profiles) for(const goal of goals){
+            const s=E.generate({style,duration,health,intensity:2,goal});
             if(s.blocked) throw new Error('unexpected block');
             const v=E.validate(s,{health});
-            if(!v.ok) throw new Error(JSON.stringify({style,duration,health,errors:v.errors}));
-            if(s.poses.length<5) throw new Error('too few poses');
+            if(!v.ok) throw new Error(JSON.stringify({style,duration,health,goal,errors:v.errors}));
+            if(s.poses.some(p=>p.sec>50)) throw new Error('hold over 50 seconds');
+            if(!s.difficulty || s.difficulty.level<1 || s.difficulty.level>5) throw new Error('difficulty missing');
             if(!Number.isFinite(s.smooth)||s.smooth<35) throw new Error('bad smoothness');
             n++;
           }
+          const plank=E.POSES.find(p=>p.id==='plank');
+          if(!plank || plank.max>40) throw new Error('plank cap must be <=40s');
           const red=E.generate({redFlags:['acute_pain']});
           if(!red.blocked) throw new Error('red flag not blocked');
-          console.log('Sequence matrix OK:',n,'sessions; poses:',E.POSES.length);
+          console.log('Production matrix OK:',n,'sessions; poses:',E.POSES.length);
           NODE
 
       - name: Enable KVM
@@ -49,7 +54,7 @@ jobs:
       - name: Build APK
         run: gradle --no-daemon :app:assembleDebug :app:assembleRelease
 
-      - name: Android startup, Core and isolated Avatar smoke test
+      - name: Android startup, Core and native OpenGL Avatar smoke test
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
@@ -61,7 +66,6 @@ jobs:
           script: |
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb logcat -c
-
             adb shell am force-stop com.yogaflow.yogaapp
             adb shell am start -W -n com.yogaflow.yogaapp/.MainActivity
             sleep 3
@@ -78,21 +82,19 @@ jobs:
             adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
             adb shell pidof 'com.yogaflow.yogaapp:avatar' | grep -E '[0-9]'
             adb shell dumpsys activity activities | grep -q 'com.yogaflow.yogaapp/.AvatarActivity'
-
-            adb logcat -d -t 1200 > /tmp/yf09-logcat.txt
-            ! grep -q 'FATAL EXCEPTION.*com.yogaflow.yogaapp' /tmp/yf09-logcat.txt
+            adb logcat -d -t 1400 > /tmp/yf10-logcat.txt
+            ! grep -q 'FATAL EXCEPTION.*com.yogaflow.yogaapp' /tmp/yf10-logcat.txt
 
       - name: Package source
         if: success()
-        run: |
-          zip -qr YogaFlow-MVP-0.9.0-source.zip app build.gradle settings.gradle gradle.properties README.md PRODUCTION_PLAN.md .github
+        run: zip -qr YogaFlow-MVP-1.0.0-RC1-source.zip app build.gradle settings.gradle gradle.properties README.md PRODUCTION_PLAN.md .github
 
       - name: Upload smoke log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: YogaFlow-0.9-smoke-log
-          path: /tmp/yf09-logcat.txt
+          name: YogaFlow-1.0-RC1-smoke-log
+          path: /tmp/yf10-logcat.txt
           if-no-files-found: warn
           retention-days: 7
 
@@ -100,7 +102,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: YogaFlow-MVP-0.9.0
+          name: YogaFlow-MVP-1.0.0-RC1
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
@@ -109,7 +111,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: YogaFlow-MVP-0.9.0-source
-          path: YogaFlow-MVP-0.9.0-source.zip
+          name: YogaFlow-MVP-1.0.0-RC1-source
+          path: YogaFlow-MVP-1.0.0-RC1-source.zip
           if-no-files-found: error
           retention-days: 30
