@@ -2,9 +2,12 @@ package com.yogaflow.yogaapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.print.PrintAttributes;
 import android.print.PrintManager;
 import android.util.Log;
@@ -38,6 +41,18 @@ public final class MainActivity extends Activity {
         getWindow().setStatusBarColor(Color.rgb(243,241,234));
         getWindow().setNavigationBarColor(Color.rgb(243,241,234));
         showNativeHome();
+
+        // CI-only hook. Release builds ignore this extra because FLAG_DEBUGGABLE is not set.
+        boolean debuggable=(getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE)!=0;
+        if(debuggable && getIntent()!=null && getIntent().getBooleanExtra("avatarSmoke",false)){
+            new Handler(Looper.getMainLooper()).postDelayed(()->{
+                try{
+                    Intent i=new Intent(MainActivity.this,AvatarActivity.class);
+                    i.putExtra("session","");
+                    startActivity(i);
+                }catch(Throwable t){Log.e(TAG,"avatar smoke launch",t);}
+            },900);
+        }
     }
 
     private void installCrashRecorder(){
