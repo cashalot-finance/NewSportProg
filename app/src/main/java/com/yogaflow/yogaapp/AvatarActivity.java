@@ -120,7 +120,7 @@ public final class AvatarActivity extends Activity {
             PoseItem p=session.poses.get(index);
             timer.setText(format(Math.max(0,p.sec-elapsed)));
             surface.renderer.setBreath((float)((Math.sin(now/1100.0)+1)*.5));
-            panel.postDelayed(this,100);
+            title.postDelayed(this,100);
         }
     };
 
