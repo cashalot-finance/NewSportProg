@@ -1,43 +1,133 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>YogaFlow 0.8</title><style>
-:root{--bg:#f4f1e9;--card:#fff;--ink:#18372f;--muted:#708078;--line:#dce4df;--accent:#235846;--soft:#eaf3ee}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}main{max-width:620px;margin:auto;padding:22px 16px 70px}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:14px}h1,h2,h3{margin:0 0 10px}.muted{color:var(--muted);line-height:1.45}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.choice,.pill,.btn{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff;color:var(--ink)}.choice.on,.pill.on{background:var(--soft);border-color:#9fbcae}.btn{width:100%;background:var(--accent);color:#fff;font-weight:750;font-size:16px}.row{display:flex;gap:8px;flex-wrap:wrap}.hidden{display:none}.pose{padding:11px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}.badge{display:inline-block;padding:6px 9px;border-radius:999px;background:var(--soft);font-size:12px}.check{display:block;padding:8px 0}.top{font-size:12px;color:var(--muted);margin-bottom:12px}
-</style></head><body><main>
-<div class="top">YogaFlow AI · Clean Core 0.8 · WebGL не участвует в запуске</div>
+<!doctype html><html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>YogaFlow AI 0.9</title>
+<style>
+:root{--bg:#f3f1ea;--card:#fff;--ink:#17362d;--muted:#6f7f78;--line:#dce4df;--accent:#245b47;--accent2:#dcebe4;--soft:#edf4f0;--warn:#fff4e4;--danger:#fff0ef;--shadow:0 10px 34px rgba(27,61,50,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-tap-highlight-color:transparent}.top{position:sticky;top:0;z-index:10;background:rgba(243,241,234,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;justify-content:space-between;align-items:center}.brand{font-weight:850}.ver{font-size:12px;color:var(--muted)}main{max-width:760px;margin:auto;padding:16px 14px 90px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:17px;margin-bottom:13px;box-shadow:var(--shadow)}h1,h2,h3{margin:0 0 10px}h1{font-size:28px;line-height:1.05}.muted,.mini{color:var(--muted);line-height:1.45}.mini{font-size:13px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.choice,.pill,.iconBtn{border:1px solid var(--line);background:#fff;border-radius:15px;padding:12px;color:var(--ink);text-align:left}.choice.on,.pill.on{background:var(--accent2);border-color:#9ebcaf}.choice b{display:block}.choice small{display:block;color:var(--muted);margin-top:3px}.row{display:flex;gap:8px;flex-wrap:wrap}.pill{padding:10px 13px;text-align:center}.checks{display:grid;gap:8px}.check{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;padding:11px;background:#fff}.check input{width:19px;height:19px;margin-top:1px}.check span{flex:1}.check small{display:block;color:var(--muted);margin-top:3px}.btn{width:100%;border:0;border-radius:16px;padding:15px;font-weight:800;font-size:16px;background:var(--accent);color:#fff}.btn.alt{background:#e8f0ec;color:#23483c;border:1px solid #cad9d1}.btn.dark{background:#172d27}.notice{background:var(--warn);border:1px solid #ead8bf;border-radius:14px;padding:12px;color:#715b42;font-size:13px}.danger{background:var(--danger);border-color:#eccbc7;color:#7e443f}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:var(--soft);border-radius:14px;padding:11px;text-align:center}.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--muted)}.hidden{display:none!important}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.timeline{display:grid;gap:8px}.pose{display:grid;grid-template-columns:60px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:9px}.pose svg{width:56px;height:56px;background:#eef4f0;border-radius:12px}.pose small{display:block;color:var(--muted);margin-top:3px}.time{font-size:12px;color:var(--muted)}.badge{display:inline-block;border-radius:999px;padding:6px 9px;background:var(--soft);font-size:12px;margin:2px}.progress{height:8px;background:#e2e9e5;border-radius:999px;overflow:hidden}.progress i{display:block;height:100%;background:var(--accent);width:0}.avatarWrap{display:grid;place-items:center;min-height:300px;border-radius:20px;background:radial-gradient(circle at 50% 28%,#fff,#e8efeb);overflow:hidden}.avatarWrap svg{width:min(100%,380px);height:320px}.coach{text-align:center}.coach .cue{min-height:42px;color:var(--muted);line-height:1.45}.controls{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:8px}.controls button{border:1px solid var(--line);background:#fff;border-radius:13px;padding:12px;color:var(--ink)}.controls .main{background:var(--accent);color:#fff}.historyItem{border-top:1px solid var(--line);padding:11px 0;display:flex;justify-content:space-between;gap:10px}.historyItem:first-child{border-top:0}.doc{background:white}.docPose{page-break-inside:avoid;border-top:1px solid #ddd;padding:12px 0}.docPose h3{margin-bottom:5px}@media print{body{background:white}.top,.noPrint{display:none!important}main{max-width:none;padding:0}.card{border:0;box-shadow:none;padding:0}.doc{display:block!important}}
+</style></head><body>
+<div class="top"><div><div class="brand">YogaFlow AI</div><div class="ver">Production beta 0.9</div></div><div class="ver">Core offline</div></div>
+<main>
 <section id="setup">
-<div class="card"><h1>Персональная йога</h1><p class="muted">Эта версия проверяет чистый Android runtime. Генератор работает локально, а 3D остаётся изолированным модулем.</p></div>
-<div class="card"><h3>Ограничения</h3>
-<label class="check"><input type="checkbox" value="wrist"> Запястья</label>
-<label class="check"><input type="checkbox" value="knee"> Колени</label>
-<label class="check"><input type="checkbox" value="back"> Поясница</label>
-<label class="check"><input type="checkbox" value="neck"> Шея</label>
-<label class="check"><input type="checkbox" value="balance"> Баланс</label>
-</div>
-<div class="card"><h3>Стиль</h3><div class="grid" id="styles"></div></div>
-<div class="card"><h3>Длительность</h3><div class="row" id="dur"></div></div>
-<button class="btn" id="go">Создать тренировку</button>
+  <div class="card"><h1>Персональная практика</h1><p class="muted">Выберите стиль, цель и ограничения. Sequence Engine сначала фильтрует неподходящие движения, затем строит последовательность и проверяет плавность переходов.</p></div>
+  <div class="card"><h3>1. Что учитывать</h3><div id="health" class="checks"></div><div class="notice" style="margin-top:10px">Это прототип безопасного подбора, а не медицинская диагностика. Правила противопоказаний перед production-релизом должны пройти отдельную клиническую валидацию.</div></div>
+  <div class="card"><h3>Красные флаги</h3><div id="redflags" class="checks"></div><div class="mini" style="margin-top:8px">При выборе любого пункта автоматическая генерация блокируется.</div></div>
+  <div class="card"><h3>2. Стиль</h3><div id="styles" class="grid"></div></div>
+  <div class="card"><h3>3. Цель</h3><div id="goals" class="grid"></div></div>
+  <div class="card"><h3>4. Длительность</h3><div id="durations" class="row"></div><h3 style="margin-top:18px">Интенсивность</h3><div id="intensity" class="row"></div></div>
+  <button class="btn" id="generate">Создать тренировку</button>
+  <div class="card" id="historyCard" style="margin-top:13px"><h3>Последние тренировки</h3><div id="history"></div></div>
 </section>
+
 <section id="result" class="hidden">
-<div class="card"><button class="pill" id="back">← Настройки</button><h2 id="title" style="margin-top:14px"></h2><div><span class="badge" id="meta"></span></div></div>
-<div class="card"><h3>Последовательность</h3><div id="list"></div></div>
-<div class="card"><h3>Аватар</h3><p class="muted">GPU-аватар временно отделён от clean-build проверки. Он продолжает разрабатываться отдельно и вернётся после подтверждения стабильного запуска Android shell.</p></div>
+  <div class="card">
+    <div class="tabs noPrint"><button class="btn alt" id="backSetup">← Настройки</button><button class="btn dark" id="open3d">3D Avatar Lab</button></div>
+    <h2 id="resultTitle">Тренировка</h2><p class="mini" id="resultSub"></p>
+    <div class="stats"><div class="stat"><b id="minutes">0</b><span>мин</span></div><div class="stat"><b id="posesCount">0</b><span>асан</span></div><div class="stat"><b id="smooth">0%</b><span>плавность</span></div></div>
+  </div>
+  <div class="actions noPrint"><button class="btn" id="start2d">Начать 2D</button><button class="btn alt" id="printBtn">Документ / PDF</button></div>
+  <div class="card" style="margin-top:13px"><h3>Последовательность</h3><div id="timeline" class="timeline"></div></div>
 </section>
+
+<section id="player" class="hidden">
+  <div class="card coach">
+    <div class="tabs noPrint"><button class="btn alt" id="closePlayer">← План</button><button class="btn dark" id="player3d">Открыть 3D</button></div>
+    <div class="avatarWrap" id="avatar"></div><h2 id="poseName">—</h2><div class="cue" id="cue">—</div>
+    <div class="progress"><i id="poseProgress"></i></div>
+    <div class="stats" style="margin-top:10px"><div class="stat"><b id="poseTime">0:00</b><span>поза</span></div><div class="stat"><b id="poseIndex">1/1</b><span>этап</span></div><div class="stat"><b id="sessionTime">0:00</b><span>прошло</span></div></div>
+    <div class="controls noPrint" style="margin-top:10px"><button id="prev">←</button><button id="play" class="main">Пауза</button><button id="next">→</button></div>
+  </div>
+</section>
+
+<section id="document" class="hidden doc"><div class="card"><div class="noPrint"><button class="btn alt" id="closeDoc">← Назад</button></div><h1 id="docTitle">YogaFlow</h1><p class="muted" id="docMeta"></p><div id="docBody"></div></div></section>
+</main>
+<script src="engine.js"></script>
 <script>
-const styles={hatha:'Hatha',vinyasa:'Vinyasa',yin:'Yin',restorative:'Restorative',mobility:'Mobility'};
-const poses=[
-['Гора','standing',[]],['Плечевые круги','standing',[]],['Кошка — корова','kneeling',['wrist','back','neck']],['Воин I','standing',['knee']],['Воин II','standing',['knee']],['Треугольник','standing',['back']],['Дерево','standing',['balance']],['Низкий выпад','kneeling',['knee']],['Собака мордой вниз','inverted',['wrist','back','neck']],['Сфинкс','prone',['back']],['Бабочка','seated',['knee']],['Посох','seated',[]],['Скрутка сидя','seated',['knee']],['Мост','supine',['back','neck']],['Колени к груди','supine',['knee']],['Скрутка лёжа','supine',[]],['Конструктивный отдых','supine',[]],['Шавасана','supine',[]]
-];
-let style='hatha',minutes=20;
-const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];
-$('#styles').innerHTML=Object.entries(styles).map(([k,v])=>'<button class="choice '+(k===style?'on':'')+'" data-s="'+k+'">'+v+'</button>').join('');
-$$('[data-s]').forEach(b=>b.onclick=()=>{style=b.dataset.s;$$('[data-s]').forEach(x=>x.classList.toggle('on',x===b))});
-$('#dur').innerHTML=[10,20,30,45].map(v=>'<button class="pill '+(v===minutes?'on':'')+'" data-d="'+v+'">'+v+' мин</button>').join('');
-$$('[data-d]').forEach(b=>b.onclick=()=>{minutes=+b.dataset.d;$$('[data-d]').forEach(x=>x.classList.toggle('on',x===b))});
-function generate(){
- const blocked=new Set($$('input:checked').map(x=>x.value));
- let p=poses.filter(x=>!x[2].some(r=>blocked.has(r)));
- const count=Math.max(6,Math.min(p.length,Math.round(minutes/2)+3));
- let out=[]; for(let i=0;i<count-1;i++) out.push(p[Math.floor(i*(p.length-1)/Math.max(1,count-2))]);
- out.push(poses.at(-1)); return out;
+"use strict";
+const E=window.YogaEngine,$=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];
+const state={health:new Set(),redFlags:new Set(),style:"hatha",goal:"mobility",duration:20,intensity:2,session:null,player:{i:0,elapsed:0,playing:true,last:0,raf:0}};
+function fmt(sec){sec=Math.max(0,Math.round(sec||0));return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0")}
+function esc(s){return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
+function saveProfile(){try{localStorage.setItem("yogaflow:profile",JSON.stringify({health:[...state.health],style:state.style,goal:state.goal,duration:state.duration,intensity:state.intensity}))}catch(e){}}
+function loadProfile(){try{const p=JSON.parse(localStorage.getItem("yogaflow:profile")||"null");if(!p)return;if(Array.isArray(p.health))state.health=new Set(p.health);if(E.STYLES[p.style])state.style=p.style;if(E.GOALS[p.goal])state.goal=p.goal;if([10,20,30,45,60].includes(p.duration))state.duration=p.duration;if([1,2,3].includes(p.intensity))state.intensity=p.intensity}catch(e){}}
+function pushHistory(s){try{let h=JSON.parse(localStorage.getItem("yogaflow:history")||"[]");h.unshift({id:s.id,createdAt:s.createdAt,style:s.style,duration:s.duration,goal:s.goal,smooth:s.smooth,poses:s.poses.length});h=h.slice(0,8);localStorage.setItem("yogaflow:history",JSON.stringify(h))}catch(e){}}
+function renderHistory(){let h=[];try{h=JSON.parse(localStorage.getItem("yogaflow:history")||"[]")}catch(e){};$("#history").innerHTML=h.length?h.map(x=>'<div class="historyItem"><div><b>'+esc(E.STYLES[x.style]?.name||x.style)+'</b><div class="mini">'+esc(new Date(x.createdAt).toLocaleDateString())+' · '+esc(E.GOALS[x.goal]?.name||x.goal)+'</div></div><div class="mini">'+x.duration+' мин · '+x.smooth+'%</div></div>').join(""):'<div class="mini">Пока пусто</div>'}
+function renderSetup(){
+  $("#health").innerHTML=Object.entries(E.HEALTH).map(([id,h])=>'<label class="check"><input type="checkbox" data-health="'+id+'" '+(state.health.has(id)?"checked":"")+'><span><b>'+esc(h.name)+'</b><small>Sequence Engine исключит движения с соответствующей нагрузкой.</small></span></label>').join("");
+  const RF={acute_pain:["Острая боль / свежая травма","Автогенерация отключается."],recent_surgery:["Недавняя операция","Нужен отдельный протокол восстановления."],pregnancy:["Беременность","Нужен специализированный prenatal-протокол."],cardio_restriction:["Сердечно‑сосудистые ограничения","Нужен индивидуально валидированный протокол."]};
+  $("#redflags").innerHTML=Object.entries(RF).map(([id,v])=>'<label class="check"><input type="checkbox" data-red="'+id+'"><span><b>'+v[0]+'</b><small>'+v[1]+'</small></span></label>').join("");
+  $("#styles").innerHTML=Object.entries(E.STYLES).map(([id,s])=>'<button class="choice '+(state.style===id?"on":"")+'" data-style="'+id+'"><b>'+esc(s.name)+'</b><small>'+esc(s.desc)+'</small></button>').join("");
+  $("#goals").innerHTML=Object.entries(E.GOALS).map(([id,g])=>'<button class="choice '+(state.goal===id?"on":"")+'" data-goal="'+id+'"><b>'+esc(g.name)+'</b><small>'+esc(g.tags.slice(0,3).join(" · "))+'</small></button>').join("");
+  $("#durations").innerHTML=[10,20,30,45,60].map(v=>'<button class="pill '+(state.duration===v?"on":"")+'" data-duration="'+v+'">'+v+' мин</button>').join("");
+  $("#intensity").innerHTML=[1,2,3].map(v=>'<button class="pill '+(state.intensity===v?"on":"")+'" data-int="'+v+'">'+(["","Мягко","Средне","Активно"][v])+'</button>').join("");
+  $$("[data-health]").forEach(x=>x.onchange=()=>{x.checked?state.health.add(x.dataset.health):state.health.delete(x.dataset.health);saveProfile()});
+  $$("[data-red]").forEach(x=>x.onchange=()=>{x.checked?state.redFlags.add(x.dataset.red):state.redFlags.delete(x.dataset.red)});
+  $$("[data-style]").forEach(x=>x.onclick=()=>{state.style=x.dataset.style;saveProfile();renderSetup()});
+  $$("[data-goal]").forEach(x=>x.onclick=()=>{state.goal=x.dataset.goal;saveProfile();renderSetup()});
+  $$("[data-duration]").forEach(x=>x.onclick=()=>{state.duration=+x.dataset.duration;saveProfile();renderSetup()});
+  $$("[data-int]").forEach(x=>x.onclick=()=>{state.intensity=+x.dataset.int;saveProfile();renderSetup()});
+  renderHistory();
 }
-$('#go').onclick=()=>{const s=generate();$('#title').textContent=styles[style];$('#meta').textContent=minutes+' минут · '+s.length+' асан';$('#list').innerHTML=s.map((p,i)=>'<div class="pose"><span>'+(i+1)+'. '+p[0]+'</span><small>'+p[1]+'</small></div>').join('');$('#setup').classList.add('hidden');$('#result').classList.remove('hidden')};
-$('#back').onclick=()=>{$('#result').classList.add('hidden');$('#setup').classList.remove('hidden')};
-</script></main></body></html>
+function poseSvg(p){
+  const v=p.visual||"standing";let lines="";
+  const L=(x1,y1,x2,y2)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'"/>';const C=(x,y,r)=>'<circle cx="'+x+'" cy="'+y+'" r="'+r+'"/>';
+  if(v==="warrior2"){lines=L(50,24,50,48)+L(18,34,82,34)+L(50,48,30,72)+L(50,48,72,64)+L(30,72,18,72)+L(72,64,84,64)}
+  else if(v==="triangle"){lines=L(50,25,50,48)+L(16,34,84,34)+L(50,48,28,72)+L(50,48,73,72)+L(50,48,26,40)}
+  else if(v==="tree"){lines=L(50,24,50,55)+L(50,55,50,80)+L(50,57,68,62)+L(68,62,50,66)+L(34,38,50,28)+L(66,38,50,28)}
+  else if(v==="downdog"){lines=L(28,70,49,38)+L(49,38,76,70)+L(28,70,18,70)+L(76,70,86,70)}
+  else if(v==="plank"){lines=L(25,48,75,58)+L(25,48,18,72)+L(75,58,86,74)}
+  else if(v==="bridge"){lines=L(24,68,38,45)+L(38,45,63,40)+L(63,40,78,68)+L(24,68,16,68)+L(78,68,86,68)}
+  else if(v==="butterfly"){lines=L(50,32,50,57)+L(50,57,30,72)+L(50,57,70,72)+L(30,72,40,72)+L(70,72,60,72)}
+  else if(v==="child"){lines=L(34,58,58,58)+L(58,58,78,72)+L(34,58,23,72)+L(32,54,20,44)}
+  else if(v.includes("twist")){lines=L(50,30,50,58)+L(50,43,28,48)+L(50,43,72,34)+L(50,58,34,76)+L(50,58,66,76)}
+  else if(["savasana","rest","legswall","kneeschest_supine","happybaby","figure4"].includes(v)){lines=L(18,58,78,58)+L(48,58,80,70)+L(48,58,22,72)+L(34,58,24,45)+L(58,58,70,45)}
+  else if(["quadruped","twist_kneel"].includes(v)){lines=L(30,45,65,48)+L(30,45,22,70)+L(65,48,72,70)+L(42,47,28,70)+L(58,48,82,42)}
+  else if(["cobra","sphinx","locust","kneeschest"].includes(v)){lines=L(26,60,63,56)+L(63,56,72,42)+L(26,60,18,70)+L(50,58,62,70)}
+  else if(["seatedfold","staff","seatedtwist"].includes(v)){lines=L(50,30,50,56)+L(50,56,24,72)+L(50,56,78,72)+L(50,42,28,50)+L(50,42,72,50)}
+  else if(["lunge","warrior1","reverse"].includes(v)){lines=L(50,25,50,50)+L(50,50,28,72)+L(50,50,76,67)+L(50,36,34,18)+L(50,36,66,18)}
+  else if(["fold","widefold"].includes(v)){lines=L(50,28,50,48)+L(50,48,27,66)+L(50,48,73,66)+L(50,48,33,36)}
+  else if(v==="side"){lines=L(50,24,50,52)+L(50,38,68,18)+L(50,38,34,50)+L(50,52,34,76)+L(50,52,66,76)}
+  else if(v==="chair"){lines=L(50,24,50,48)+L(50,48,32,60)+L(32,60,32,78)+L(50,48,70,60)+L(70,60,70,78)+L(50,35,28,22)+L(50,35,72,22)}
+  else{lines=L(50,25,50,53)+L(50,38,30,55)+L(50,38,70,55)+L(50,53,36,78)+L(50,53,64,78)}
+  return '<svg viewBox="0 0 100 100" aria-hidden="true"><g stroke="#315f50" stroke-width="5" stroke-linecap="round" fill="none">'+C(50,16,7)+lines+'</g></svg>';
+}
+function generate(){
+  const s=E.generate({style:state.style,goal:state.goal,duration:state.duration,intensity:state.intensity,health:[...state.health],redFlags:[...state.redFlags]});
+  if(s.blocked){$("#result").classList.add("hidden");alert("Для выбранного состояния автоматическая тренировка отключена. Нужен отдельный валидированный протокол.");return}
+  if(!s.valid){alert("Sequence Engine отклонил сессию: "+s.validation.errors.join(", "));return}
+  state.session=s;pushHistory(s);renderHistory();renderResult();
+}
+function renderResult(){
+  const s=state.session;$("#resultTitle").textContent=s.styleName+" · "+s.goalName;$("#resultSub").textContent=s.duration+" минут · интенсивность "+s.intensity+" · Engine "+E.VERSION;
+  $("#minutes").textContent=s.duration;$("#posesCount").textContent=s.poses.length;$("#smooth").textContent=s.smooth+"%";
+  $("#timeline").innerHTML=s.poses.map((p,i)=>'<div class="pose"><div>'+poseSvg(p)+'</div><div><b>'+(i+1)+'. '+esc(p.name)+'</b><small>'+esc(p.phase==="warm"?"Подготовка":p.phase==="main"?"Основная часть":"Завершение")+' · переход '+(i?s.transitions[i-1]:100)+'%'+(p.bilateral?" · обе стороны":"")+'</small></div><div class="time">'+fmt(p.sec)+'</div></div>').join("");
+  $("#setup").classList.add("hidden");$("#player").classList.add("hidden");$("#document").classList.add("hidden");$("#result").classList.remove("hidden");
+}
+function startPlayer(){
+  if(!state.session)return;cancelAnimationFrame(state.player.raf);state.player={i:0,elapsed:0,playing:true,last:performance.now(),raf:0};$("#result").classList.add("hidden");$("#player").classList.remove("hidden");updatePlayer();state.player.raf=requestAnimationFrame(tick);
+}
+function updatePlayer(){
+  const p=state.session.poses[state.player.i];$("#avatar").innerHTML=poseSvg(p);$("#poseName").textContent=p.name;$("#cue").textContent=(p.cues&&p.cues[0])||"Дышите спокойно";$("#poseTime").textContent=fmt(p.sec-state.player.elapsed);$("#poseIndex").textContent=(state.player.i+1)+"/"+state.session.poses.length;
+}
+function tick(now){
+  const pl=state.player,p=state.session.poses[pl.i];if(pl.playing)pl.elapsed+=(now-pl.last)/1000;pl.last=now;
+  const before=state.session.poses.slice(0,pl.i).reduce((a,x)=>a+x.sec,0);$("#sessionTime").textContent=fmt(before+pl.elapsed);$("#poseTime").textContent=fmt(p.sec-pl.elapsed);$("#poseProgress").style.width=(Math.min(1,pl.elapsed/p.sec)*100)+"%";
+  if(pl.elapsed>=p.sec){if(pl.i<state.session.poses.length-1){pl.i++;pl.elapsed=0;updatePlayer()}else{pl.playing=false;pl.elapsed=p.sec;$("#play").textContent="Готово"}}
+  pl.raf=requestAnimationFrame(tick);
+}
+function open3d(){
+  if(!state.session)state.session=E.generate({style:state.style,goal:state.goal,duration:state.duration,intensity:state.intensity,health:[...state.health]});
+  const payload=JSON.stringify(state.session);
+  try{if(window.YogaNative&&YogaNative.openAvatar){YogaNative.openAvatar(payload);return}}catch(e){console.error(e)}
+  try{localStorage.setItem("yogaflow:session",payload);location.href="avatar.htm"}catch(e){alert("3D-модуль недоступен")}
+}
+function showDocument(){
+  const s=state.session;if(!s)return;$("#docTitle").textContent=s.styleName+" · "+s.goalName;$("#docMeta").textContent=s.duration+" минут · "+s.poses.length+" асан · плавность "+s.smooth+"%";
+  $("#docBody").innerHTML=s.poses.map((p,i)=>'<div class="docPose"><h3>'+(i+1)+'. '+esc(p.name)+'</h3><div class="mini">'+fmt(p.sec)+' · '+(p.bilateral?"обе стороны · ":"")+esc((p.cues&&p.cues.join(" "))||"")+'</div></div>').join("");
+  $("#result").classList.add("hidden");$("#document").classList.remove("hidden");
+  setTimeout(()=>{try{if(window.YogaNative&&YogaNative.printPage)YogaNative.printPage();else window.print()}catch(e){window.print()}},120);
+}
+loadProfile();renderSetup();
+$("#generate").onclick=generate;$("#backSetup").onclick=()=>{$("#result").classList.add("hidden");$("#setup").classList.remove("hidden")};$("#start2d").onclick=startPlayer;$("#open3d").onclick=open3d;$("#player3d").onclick=open3d;$("#printBtn").onclick=showDocument;$("#closeDoc").onclick=()=>{$("#document").classList.add("hidden");$("#result").classList.remove("hidden")};
+$("#closePlayer").onclick=()=>{cancelAnimationFrame(state.player.raf);renderResult()};$("#play").onclick=()=>{state.player.playing=!state.player.playing;state.player.last=performance.now();$("#play").textContent=state.player.playing?"Пауза":"Продолжить"};
+$("#prev").onclick=()=>{if(state.player.i>0){state.player.i--;state.player.elapsed=0;updatePlayer()}};$("#next").onclick=()=>{if(state.player.i<state.session.poses.length-1){state.player.i++;state.player.elapsed=0;updatePlayer()}};
+</script></body></html>

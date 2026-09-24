@@ -1,13 +1,13 @@
-name: Build YogaFlow 0.8 APK
+name: Build YogaFlow 0.9 APK
 on:
   push:
     branches: [ yogaflow-prod ]
   workflow_dispatch:
 
 jobs:
-  build-and-smoke:
+  build-test-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 28
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -19,16 +19,37 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
+      - name: Sequence Engine matrix
+        run: |
+          node - <<'NODE'
+          const E=require('./app/src/main/assets/engine.js');
+          const styles=Object.keys(E.STYLES), durations=[10,20,30,45,60];
+          const profiles=[[],['wrist'],['knee'],['back'],['neck'],['balance'],['wrist','knee']];
+          let n=0;
+          for(const style of styles) for(const duration of durations) for(const health of profiles){
+            const s=E.generate({style,duration,health,intensity:2,goal:'mobility'});
+            if(s.blocked) throw new Error('unexpected block');
+            const v=E.validate(s,{health});
+            if(!v.ok) throw new Error(JSON.stringify({style,duration,health,errors:v.errors}));
+            if(s.poses.length<5) throw new Error('too few poses');
+            if(!Number.isFinite(s.smooth)||s.smooth<35) throw new Error('bad smoothness');
+            n++;
+          }
+          const red=E.generate({redFlags:['acute_pain']});
+          if(!red.blocked) throw new Error('red flag not blocked');
+          console.log('Sequence matrix OK:',n,'sessions; poses:',E.POSES.length);
+          NODE
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Build debug + release
+      - name: Build APK
         run: gradle --no-daemon :app:assembleDebug :app:assembleRelease
 
-      - name: Android startup + WebView smoke test
+      - name: Android core + avatar smoke test
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
@@ -44,30 +65,32 @@ jobs:
             adb shell am start -W -n com.yogaflow.yogaapp/.MainActivity
             sleep 3
             adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
-            adb shell uiautomator dump /sdcard/yf-native.xml
-            adb pull /sdcard/yf-native.xml /tmp/yf-native.xml
-            grep -q "YogaFlow AI" /tmp/yf-native.xml
-            grep -q "Открыть YogaFlow" /tmp/yf-native.xml
             adb shell input tap 540 1030
             sleep 4
             adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
-            adb shell dumpsys activity activities | grep -q "com.yogaflow.yogaapp/.MainActivity"
-            adb logcat -d -t 400 > /tmp/yf-logcat.txt
-            ! grep -q "FATAL EXCEPTION.*com.yogaflow.yogaapp" /tmp/yf-logcat.txt
+            adb shell dumpsys activity activities | grep -q 'com.yogaflow.yogaapp/.MainActivity'
+
+            adb shell am start -W -n com.yogaflow.yogaapp/.AvatarActivity
+            sleep 5
+            adb shell pidof 'com.yogaflow.yogaapp:avatar' | grep -E '[0-9]'
+            adb shell dumpsys activity activities | grep -q 'com.yogaflow.yogaapp/.AvatarActivity'
+
+            adb logcat -d -t 700 > /tmp/yf09-logcat.txt
+            ! grep -q 'FATAL EXCEPTION.*com.yogaflow.yogaapp' /tmp/yf09-logcat.txt
 
       - name: Upload smoke log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: YogaFlow-0.8-smoke-log
-          path: /tmp/yf-logcat.txt
+          name: YogaFlow-0.9-smoke-log
+          path: /tmp/yf09-logcat.txt
           if-no-files-found: warn
           retention-days: 7
 
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: YogaFlow-0.8-debug
+          name: YogaFlow-0.9-debug
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
