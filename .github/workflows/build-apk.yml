@@ -49,7 +49,7 @@ jobs:
       - name: Build APK
         run: gradle --no-daemon :app:assembleDebug :app:assembleRelease
 
-      - name: Android core + isolated avatar smoke test
+      - name: Android real user-flow smoke test
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
@@ -61,22 +61,19 @@ jobs:
           script: |
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb logcat -c
-
             adb shell am force-stop com.yogaflow.yogaapp
             adb shell am start -W -n com.yogaflow.yogaapp/.MainActivity
             sleep 3
             adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
-            adb shell dumpsys activity activities | grep -q 'com.yogaflow.yogaapp/.MainActivity'
-
-            adb shell input tap 540 1030
+            adb shell uiautomator dump /sdcard/yf1.xml >/dev/null && adb pull /sdcard/yf1.xml /tmp/yf1.xml >/dev/null && python3 -c "import re,subprocess,html; s=open('/tmp/yf1.xml',encoding='utf-8').read(); ns=re.findall(r'<node[^>]+>',s); n=next(x for x in ns if 'Открыть YogaFlow' in html.unescape((re.search(r'text=\"([^\"]*)\"',x).group(1) if re.search(r'text=\"([^\"]*)\"',x) else ''))); m=re.search(r'bounds=\"\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]\"',n); a=list(map(int,m.groups())); subprocess.check_call(['adb','shell','input','tap',str((a[0]+a[2])//2),str((a[1]+a[3])//2)])"
             sleep 4
-            adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
-
-            adb shell run-as com.yogaflow.yogaapp am start -W -n com.yogaflow.yogaapp/.AvatarActivity
+            adb shell uiautomator dump /sdcard/yf2.xml >/dev/null && adb pull /sdcard/yf2.xml /tmp/yf2.xml >/dev/null && python3 -c "import re,subprocess,html; s=open('/tmp/yf2.xml',encoding='utf-8').read(); ns=re.findall(r'<node[^>]+>',s); n=next(x for x in ns if 'Создать тренировку' in html.unescape((re.search(r'text=\"([^\"]*)\"',x).group(1) if re.search(r'text=\"([^\"]*)\"',x) else ''))); m=re.search(r'bounds=\"\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]\"',n); a=list(map(int,m.groups())); subprocess.check_call(['adb','shell','input','tap',str((a[0]+a[2])//2),str((a[1]+a[3])//2)])"
+            sleep 3
+            adb shell uiautomator dump /sdcard/yf3.xml >/dev/null && adb pull /sdcard/yf3.xml /tmp/yf3.xml >/dev/null && python3 -c "import re,subprocess,html; s=open('/tmp/yf3.xml',encoding='utf-8').read(); ns=re.findall(r'<node[^>]+>',s); n=next(x for x in ns if '3D Avatar Lab' in html.unescape((re.search(r'text=\"([^\"]*)\"',x).group(1) if re.search(r'text=\"([^\"]*)\"',x) else ''))); m=re.search(r'bounds=\"\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]\"',n); a=list(map(int,m.groups())); subprocess.check_call(['adb','shell','input','tap',str((a[0]+a[2])//2),str((a[1]+a[3])//2)])"
             sleep 6
+            adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
             adb shell pidof 'com.yogaflow.yogaapp:avatar' | grep -E '[0-9]'
             adb shell dumpsys activity activities | grep -q 'com.yogaflow.yogaapp/.AvatarActivity'
-
             adb logcat -d -t 900 > /tmp/yf09-logcat.txt
             ! grep -q 'FATAL EXCEPTION.*com.yogaflow.yogaapp' /tmp/yf09-logcat.txt
 
