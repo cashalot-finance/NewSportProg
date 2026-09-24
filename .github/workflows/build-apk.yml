@@ -49,7 +49,7 @@ jobs:
       - name: Build APK
         run: gradle --no-daemon :app:assembleDebug :app:assembleRelease
 
-      - name: Android core + avatar smoke test
+      - name: Android user-flow smoke test
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
@@ -59,23 +59,52 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: |
+            cat >/tmp/tap_text.py <<'PY'
+            import re, sys, subprocess, html
+            path, wanted = sys.argv[1], sys.argv[2]
+            s=open(path,encoding='utf-8').read()
+            nodes=re.findall(r'<node[^>]+>',s)
+            node=None
+            for n in nodes:
+                m=re.search(r'text="([^"]*)"',n)
+                if m and wanted in html.unescape(m.group(1)):
+                    node=n; break
+            if not node:
+                raise SystemExit("text not found: "+wanted)
+            m=re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"',node)
+            if not m:
+                raise SystemExit("bounds not found: "+wanted)
+            x1,y1,x2,y2=map(int,m.groups())
+            subprocess.check_call(['adb','shell','input','tap',str((x1+x2)//2),str((y1+y2)//2)])
+            PY
+
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb logcat -c
             adb shell am force-stop com.yogaflow.yogaapp
             adb shell am start -W -n com.yogaflow.yogaapp/.MainActivity
             sleep 3
             adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
-            adb shell input tap 540 1030
-            sleep 4
-            adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
-            adb shell dumpsys activity activities | grep -q 'com.yogaflow.yogaapp/.MainActivity'
 
-            adb shell am start -W -n com.yogaflow.yogaapp/.AvatarActivity
-            sleep 5
+            adb shell uiautomator dump /sdcard/yf1.xml
+            adb pull /sdcard/yf1.xml /tmp/yf1.xml
+            python3 /tmp/tap_text.py /tmp/yf1.xml "Открыть YogaFlow"
+            sleep 4
+
+            adb shell uiautomator dump /sdcard/yf2.xml
+            adb pull /sdcard/yf2.xml /tmp/yf2.xml
+            python3 /tmp/tap_text.py /tmp/yf2.xml "Создать тренировку"
+            sleep 3
+
+            adb shell uiautomator dump /sdcard/yf3.xml
+            adb pull /sdcard/yf3.xml /tmp/yf3.xml
+            python3 /tmp/tap_text.py /tmp/yf3.xml "3D Avatar Lab"
+            sleep 6
+
+            adb shell pidof com.yogaflow.yogaapp | grep -E '[0-9]'
             adb shell pidof 'com.yogaflow.yogaapp:avatar' | grep -E '[0-9]'
             adb shell dumpsys activity activities | grep -q 'com.yogaflow.yogaapp/.AvatarActivity'
 
-            adb logcat -d -t 700 > /tmp/yf09-logcat.txt
+            adb logcat -d -t 900 > /tmp/yf09-logcat.txt
             ! grep -q 'FATAL EXCEPTION.*com.yogaflow.yogaapp' /tmp/yf09-logcat.txt
 
       - name: Upload smoke log
