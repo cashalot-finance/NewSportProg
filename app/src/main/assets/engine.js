@@ -186,7 +186,7 @@ function phaseForIndex(i,n){
 function transitionSeconds(score){return score>=92?4:score>=82?5:score>=70?6:7}
 function distributeHolds(seq,transitionSecs,total,style){
  const sf=(STYLES[style]||STYLES.hatha).hold;
- const min=seq.map(p=>Math.max(12,Math.min(50,p.min)));
+ const min=seq.map(p=>Math.max(12,Math.min(30,p.min)));
  const max=seq.map(p=>Math.max(min[seq.indexOf(p)],Math.min(50,p.max)));
  const base=seq.map((p,i)=>clamp(Math.round(((p.min+p.max)/2)*sf),min[i],max[i]));
  const trans=transitionSecs.reduce((a,b)=>a+b,0);
@@ -208,7 +208,7 @@ function buildSequence(opts,totalSeconds){
  const maxDiff=allowedDifficulty(opts.intensity);
  let pool=P.filter(x=>!blocked(x,opts.health)&&x.diff<=maxDiff&&(x.styles.includes(opts.style)||x.phase!=="main"));
  if(pool.length<20)pool=P.filter(x=>!blocked(x,opts.health)&&x.diff<=maxDiff);
- let count=clamp(Math.ceil(totalSeconds/43),8,Math.min(92,Math.max(8,pool.length+15)));
+ let count=clamp(Math.ceil(totalSeconds/36),8,100);
  const usage={},seq=[];
  for(let i=0;i<count;i++){
    const phase=phaseForIndex(i,count);opts.phase=phase;const prev=seq[seq.length-1];
@@ -235,11 +235,11 @@ function generate(input){
  opts.duration=clamp(Number(opts.duration)||20,8,90);opts.intensity=clamp(Number(opts.intensity)||2,1,3);opts.health=uniq(opts.health||[]);opts.redFlags=uniq(opts.redFlags||[]);
  const red=opts.redFlags.filter(x=>RED_FLAGS.includes(x));if(red.length)return {blocked:true,reason:"red_flag",redFlags:red,version:VERSION};
  const totalSeconds=Math.round(opts.duration*60);let seq=buildSequence(opts,totalSeconds),pass=0,holds=[],trans=[];
- while(pass++<20){
+ while(pass++<110){
    trans=seq.slice(1).map((p,i)=>transitionSeconds(transitionScore(seq[i],p,opts.style)));
    const a=distributeHolds(seq,trans,totalSeconds,opts.style);holds=a.holds;
    if(a.total===totalSeconds)break;
-   if(a.total<totalSeconds&&seq.length<96){const more=buildSequence(opts,Math.ceil((seq.length+1)*43));seq.push({...more[more.length-2]});continue}
+   if(a.total<totalSeconds&&seq.length<100){const more=buildSequence(opts,Math.ceil((seq.length+1)*43));seq.push({...more[more.length-2]});continue}
    if(a.total>totalSeconds&&seq.length>8){seq.splice(Math.max(2,seq.length-2),1);continue}
    break;
  }
