@@ -152,7 +152,7 @@ p("standing_knee_hug","Колено к груди стоя","warm","standing",2,
 p("heel_to_glute","Пятка к ягодице стоя","warm","standing",2,15,30,["single_leg","deep_knee"],"dancer_prep",["balance","legs"],D.standing,"Колени остаются рядом.",true),
 p("side_stretch_kneeling","Боковое вытяжение на колене","warm","kneeling",2,20,35,["deep_knee","overhead_load"],"gate",["mobility","spine"],D.gentle,"Опорное колено расположите на мягкой поверхности.",true)
 ];
-function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+const LIB=P.slice(0,100);\nfunction clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 function uniq(a){return [...new Set(a)]}
 const POS={standing:5,kneeling:4,seated:3,armbalance:3,inverted:3,prone:2,side:2,supine:1};
 function healthBlocks(health){let out=[];(health||[]).forEach(h=>{if(HEALTH[h])out.push(...HEALTH[h].blocks)});return uniq(out)}
@@ -267,5 +267,5 @@ function validate(s,opts){
  if(!s||!s.difficulty||!Number.isFinite(s.difficulty.score))e.push("difficulty_missing");
  return {ok:e.length===0,errors:e,totalSeconds:total,targetSeconds:target};
 }
-return {VERSION,STYLES,GOALS,HEALTH,RED_FLAGS,POSES:P,generate,validate,transitionScore,scoreDifficulty};
+return {VERSION,STYLES,GOALS,HEALTH,RED_FLAGS,POSES:LIB,generate,validate,transitionScore,scoreDifficulty};
 });
